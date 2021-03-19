@@ -17,8 +17,8 @@ import { DealRepository } from './repositories/deal.repository';
 	imports: [
 		MongooseModule.forRootAsync({
 			imports: [AppConfigModule],
-			useFactory: () => ({
-				uri: 'mongodb://localhost:27017/linkapi',
+			useFactory: (appConfigService: AppConfigService) => ({
+				uri: appConfigService.databaseUrl,
 				useNewUrlParser: true,
 				useFindAndModify: true,
 				useUnifiedTopology: true,

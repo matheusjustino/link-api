@@ -16,4 +16,8 @@ export class AppConfigService {
 	public get blingTokenApi(): string {
 		return this.configService.get<string>('BLING_TOKEN_API');
 	}
+
+	public get databaseUrl(): string {
+		return this.configService.get<string>('DATABASE_URL');
+	}
 }
