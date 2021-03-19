@@ -12,5 +12,6 @@ import { PipedriveService } from './pipedrive.service';
 	imports: [AppConfigModule, DatabaseModule, HttpModule],
 	providers: [PipedriveService],
 	controllers: [PipedriveController],
+	exports: [PipedriveService],
 })
 export class PipedriveModule {}
