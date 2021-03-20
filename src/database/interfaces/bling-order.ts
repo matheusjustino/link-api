@@ -7,7 +7,14 @@ export interface IBlingOrder {
 	transporte: {
 		transportadora: string;
 		tipoFrete: string;
-		servico: string;
+		servicoCorreios: string;
+	};
+
+	volumes: {
+		volume: {
+			servico: string;
+			codigoRastreamento: string;
+		};
 	};
 
 	items: {

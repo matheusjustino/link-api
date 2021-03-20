@@ -17,6 +17,9 @@ export class Deal extends Document {
 
 	@Prop({ type: String, enum: StatusEnum, default: StatusEnum.won })
 	public status: string;
+
+	@Prop({ type: String, default: '0' })
+	public value: string;
 }
 
 export const DealSchemaProvide = Symbol('DealSchemaProvider').toString();

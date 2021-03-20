@@ -12,6 +12,7 @@ import { AppConfigService } from './../config/app-config.service';
 
 // Repositories
 import { DealRepository } from './repositories/deal.repository';
+import { OrderRepository } from './repositories/order.repository';
 
 @Module({
 	imports: [
@@ -27,7 +28,7 @@ import { DealRepository } from './repositories/deal.repository';
 		}),
 		MongooseModule.forFeatureAsync(modelsProviderAsync),
 	],
-	providers: [DealRepository],
-	exports: [DealRepository],
+	providers: [DealRepository, OrderRepository],
+	exports: [DealRepository, OrderRepository],
 })
 export class DatabaseModule {}

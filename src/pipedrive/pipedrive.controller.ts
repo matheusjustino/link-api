@@ -6,6 +6,7 @@ import {
 	HttpStatus,
 	Res,
 	Param,
+	Query,
 } from '@nestjs/common';
 
 // Services
@@ -21,7 +22,7 @@ export class PipedriveController {
 	@Post('deals')
 	public addDeal(@Res() res, @Body() body: Deal) {
 		return this.pipedriveService.addDeal(body).subscribe(
-			(result) => res.status(HttpStatus.OK).json(result.data),
+			(result) => res.status(HttpStatus.OK).json(result),
 			(error) => {
 				res.status(HttpStatus.BAD_REQUEST).json(error);
 				throw new Error(error);
@@ -30,9 +31,12 @@ export class PipedriveController {
 	}
 
 	@Get('deals')
-	public getAllDeals(@Res() res) {
-		return this.pipedriveService.getAllDeals().subscribe(
-			(result) => res.status(HttpStatus.OK).json(result.data),
+	public getAllDeals(@Res() res, @Query() query) {
+		return this.pipedriveService.getAllDeals(query).subscribe(
+			(result) => {
+				res.status(HttpStatus.OK).json(result);
+				return result;
+			},
 			(error) => {
 				res.status(HttpStatus.BAD_REQUEST).json(error);
 				throw new Error(error);
@@ -43,7 +47,7 @@ export class PipedriveController {
 	@Get('deals/:dealId')
 	public getDealDetails(@Res() res, @Param('dealId') dealId: string) {
 		return this.pipedriveService.getDealDetails(dealId).subscribe(
-			(result) => res.status(HttpStatus.OK).json(result.data),
+			(result) => res.status(HttpStatus.OK).json(result),
 			(error) => {
 				res.status(HttpStatus.BAD_REQUEST).json(error);
 				throw new Error(error);

@@ -1,87 +1,163 @@
 import { HttpService, Injectable } from '@nestjs/common';
-import { concatMap, map, switchMap, take } from 'rxjs/operators';
-const jsonToXml = require('js2xmlparser').parse;
-
-// Interfaces
-import { IBlingOrder } from './../database/interfaces/bling-order';
+import { from, Observable, of } from 'rxjs';
+import {
+	bufferCount,
+	catchError,
+	concatAll,
+	concatMap,
+	map,
+	mergeMap,
+	reduce,
+	switchMap,
+	take,
+	tap,
+} from 'rxjs/operators';
 
 // Services
 import { AppConfigService } from './../config/app-config.service';
 import { PipedriveService } from './../pipedrive/pipedrive.service';
+import { XmlService } from '../xml/xml.service';
 
-// Models
-import { BlingOrderModel } from '../models/bling.model';
-import { of } from 'rxjs';
+// Repositories
+import { OrderRepository } from './../database/repositories/order.repository';
+
+// Interfaces
+import { IPipedriveResponse } from '../interfaces/pipedrive-response.interface';
+import { IBlingOrderSuccess } from '../interfaces/bling-order-success.interface';
+import { IBlingOrderError } from '../interfaces/bling-order.error.interface';
+import { IBlingDailyReport } from '../interfaces/bling-daily-report.interface';
+import { IReports } from 'src/interfaces/reports.interface';
 
 @Injectable()
 export class BlingService {
 	private blingUrl: string;
 
 	constructor(
+		private readonly orderRepository: OrderRepository,
 		private readonly pipedriveService: PipedriveService,
 		private readonly appConfigService: AppConfigService,
 		private readonly httpService: HttpService,
+		private readonly xmlService: XmlService,
 	) {
-		this.blingUrl = 'https://bling.com.br/Api/v2/pedido/json/';
+		this.blingUrl = this.appConfigService.blingXmlUrl;
 	}
 
-	public saveOrder() {
-		return this.pipedriveService.getAllDeals().pipe(
-			concatMap(({ data }) => {
-				console.log(data.data);
-				if (data.data) {
-					const dealXml = this.convertObjToXml(data.data[0]);
-
-					return dealXml;
-				}
-				return of(['No orders']);
+	public integration() {
+		return this.pipedriveService.getAllDeals({ status: 'won' }).pipe(
+			concatAll(), // Emitir os valores Deals um por um.
+			mergeMap((deals: IPipedriveResponse) => {
+				const dealXml = this.xmlService.convertObjToXml(deals); // Convertendo o Deal para o XML (exemplo) do Bling
+				return from(dealXml).pipe(
+					// Mapeando o resultado para um Observable<{ XML, Valor do Deal }>
+					map((result) => ({ result, value: deals.value })),
+				);
 			}),
-			switchMap((result) => {
-				console.log(result);
-				return this.httpService.post(
-					this.blingUrl,
+			mergeMap(({ result, value }) => {
+				const order = this.httpService.post(
+					this.blingUrl +
+						`&apikey=${this.appConfigService.blingTokenApi}`,
 					{},
 					{
 						params: {
-							apiKey: this.appConfigService.blingTokenApi,
 							xml: result,
 						},
 					},
 				);
+				return from(order).pipe(
+					map((blingResult) => ({ blingResult, value })),
+				);
+			}),
+			mergeMap(({ blingResult, value }) => {
+				if (blingResult.data.retorno.erros) {
+					const error: IBlingOrderError =
+						blingResult.data.retorno.erros[0].erro;
+					return of(error);
+				}
+
+				const data: IBlingOrderSuccess =
+					blingResult.data.retorno.pedidos[0].pedido;
+				data.value = value;
+
+				return of(data);
+			}),
+			reduce((acc: IBlingOrderSuccess[], next) => [...acc, next], []),
+			catchError((error) => error),
+		);
+	}
+
+	public saveOnDatabase() {
+		return this.httpService
+			.get(
+				'https://bling.com.br/Api/v2/pedidos/json/' +
+					`?apikey=${this.appConfigService.blingTokenApi}`,
+			)
+			.pipe(
+				map((result) => {
+					if (result.data.retorno.erros) {
+						return of(result.data.retorno.erros[0].erro);
+					}
+
+					const today = this.formatTodayDate();
+
+					const dataToSave = {
+						date: today,
+						totalAmount: 0,
+						count: 0,
+					};
+
+					result.data.retorno.pedidos.map(({ pedido }) => {
+						if (pedido.data === today) {
+							dataToSave['totalAmount'] += Number(
+								pedido.totalvenda,
+							);
+							dataToSave['count'] += 1;
+						}
+					});
+
+					const options = {
+						upsert: true,
+						new: true,
+						setDefaultsOnInsert: true,
+					};
+
+					const insertUpdate = this.orderRepository.orderModel // Salvando a resposta do blig no mongodb atlas
+						.findOneAndUpdate(
+							{ date: dataToSave.date },
+							dataToSave,
+							options,
+						)
+						.exec();
+
+					return from(insertUpdate).pipe(map((result) => result));
+				}),
+				switchMap((result) => result),
+			);
+	}
+
+	public reports(): Observable<IReports[]> {
+		return from(this.orderRepository.orderModel.find()).pipe(
+			map((result) => {
+				const data: IReports[] = result.map((pedido) => {
+					return {
+						id: pedido.date,
+						totalAmount: pedido.totalAmount,
+						count: pedido.count,
+					};
+				});
+
+				return data;
 			}),
 		);
 	}
 
-	private async convertObjToXml(pipedriveObj) {
-		const orderObj = {
-			pedido: [
-				{
-					cliente: {
-						nome: pipedriveObj.creator_user_id.name,
-						email: pipedriveObj.creator_user_id.email,
-					},
-					transporte: {
-						transportadora: 'Transportadora XYZ',
-						tipo_frete: 'R',
-						servico_correios: 'SEDEX - CONTRATO',
-					},
-					volumes: {
-						volume: {
-							servico: 'SEDEX - CONTRATO',
-							codigoRastreamento: 'RX32084021',
-						},
-					},
-					items: {
-						item: {
-							codigo: 1,
-							descricao: 'Item',
-							vlr_unit: pipedriveObj.value,
-						},
-					},
-				},
-			],
-		};
+	private formatTodayDate(): string {
+		const date = new Date();
+		const today = `${date.getFullYear()}-${
+			date.getMonth() + 1 > 9
+				? date.getMonth() + 1
+				: `0${date.getMonth() + 1}`
+		}-${date.getDate() > 9 ? date.getDate() : `0${date.getDate()}`}`;
 
-		return jsonToXml('pedido', orderObj);
+		return today;
 	}
 }

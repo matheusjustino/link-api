@@ -5,10 +5,20 @@ import { PipedriveModule } from './pipedrive/pipedrive.module';
 import { BlingModule } from './bling/bling.module';
 import { DatabaseModule } from './database/database.module';
 import { AppConfigModule } from './config/config.module';
+import { XmlModule } from './xml/xml.module';
+import { ScheduleModule } from './schedule/schedule.module';
+import { blingProvider } from './bling/bling.provider';
 
 @Module({
-	imports: [PipedriveModule, BlingModule, DatabaseModule, AppConfigModule],
+	imports: [
+		PipedriveModule,
+		DatabaseModule,
+		AppConfigModule,
+		XmlModule,
+		ScheduleModule,
+		BlingModule,
+	],
 	controllers: [AppController],
 	providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
