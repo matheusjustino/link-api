@@ -49,13 +49,13 @@ disso, os dados diários dos pedidos salvos no
 ## Instruções
 
 ```bash
-# Clone o repositório
+# Repositório
 git clone https://github.com/matheusjustino/link-api.git
 
-# Instale as dependências
+# Dependências
 yarn add
 
-# Inicie no modo Desenvolvimento
+# Iniciar no modo Desenvolvimento
 yarn start:dev
 
 # Projeto Executando
@@ -68,7 +68,7 @@ Ao iniciar o projeto três Schedules estarão em execução.
 Com o projeto em execução acesse http://localhost:3000/api para conhecer as rotas que o projeto possui.
 ```
 
-## Tecnologias Usadas
+## Tecnologias Utilizadas
 
 -   [Node.js](https://nodejs.org/en/docs/)
 -   [NestJs](https://docs.nestjs.com/)

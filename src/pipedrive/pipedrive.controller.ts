@@ -35,7 +35,9 @@ export class PipedriveController {
 	@Post('deals')
 	@ApiBody({ type: DealDto })
 	@ApiOkResponse({ type: PipedriveResponseDto })
-	@ApiOperation({ description: 'Cria um novo Deal no Pipedrive.' })
+	@ApiOperation({
+		description: 'Cria um novo Deal no Pipedrive com o status [Won].',
+	})
 	public addDeal(@Res() res, @Body() body: DealDto) {
 		return this.pipedriveService.addDeal(body).subscribe(
 			(result) => res.status(HttpStatus.OK).json(result),

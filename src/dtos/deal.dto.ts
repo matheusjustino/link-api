@@ -6,4 +6,7 @@ export class DealDto {
 
 	@ApiProperty()
 	public value: string;
+
+	@ApiProperty()
+	public status: string;
 }
