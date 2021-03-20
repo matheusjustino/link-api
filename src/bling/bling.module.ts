@@ -23,7 +23,7 @@ import { blingProvider } from './bling.provider';
 		XmlModule,
 		ScheduleModule,
 	],
-	providers: [BlingService, ...blingProvider],
+	providers: [BlingService],
 	controllers: [BlingController],
 })
 export class BlingModule {}

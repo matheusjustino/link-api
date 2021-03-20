@@ -14,6 +14,9 @@ import { Deal } from '../database/schemas/deal.schema';
 // Services
 import { AppConfigService } from './../config/app-config.service';
 
+// Dtos
+import { DealDto } from '../dtos/deal.dto';
+
 @Injectable()
 export class PipedriveService {
 	private pipedriveUrl: string;
@@ -28,7 +31,7 @@ export class PipedriveService {
 		this.query = `?api_token=${this.configService.pipedriveTokenAPI}`;
 	}
 
-	public addDeal(data: Deal): Observable<IPipedriveResponse> {
+	public addDeal(data: DealDto): Observable<IPipedriveResponse> {
 		return this.httpService
 			.post(this.pipedriveUrl + this.query, data)
 			.pipe(map((data) => data.data.data));

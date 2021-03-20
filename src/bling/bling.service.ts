@@ -1,16 +1,12 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { from, Observable, of } from 'rxjs';
 import {
-	bufferCount,
 	catchError,
 	concatAll,
-	concatMap,
 	map,
 	mergeMap,
 	reduce,
 	switchMap,
-	take,
-	tap,
 } from 'rxjs/operators';
 
 // Services
@@ -25,7 +21,6 @@ import { OrderRepository } from './../database/repositories/order.repository';
 import { IPipedriveResponse } from '../interfaces/pipedrive-response.interface';
 import { IBlingOrderSuccess } from '../interfaces/bling-order-success.interface';
 import { IBlingOrderError } from '../interfaces/bling-order.error.interface';
-import { IBlingDailyReport } from '../interfaces/bling-daily-report.interface';
 import { IReports } from 'src/interfaces/reports.interface';
 
 @Injectable()
