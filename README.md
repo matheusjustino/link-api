@@ -32,7 +32,7 @@
 <h4 align="center">
   <a href="#sobre-o-projeto">Sobre</a>&nbsp;|&nbsp;
   <a href="#instruções">Instruções</a>&nbsp;|&nbsp;
-  <a href="#tecnologias-usadas">Tecnologias</a>&nbsp;|&nbsp;
+  <a href="#tecnologias-usadas">Tecnologias</a>
 </h4>
 
 ## Sobre o projeto
@@ -59,9 +59,9 @@ yarn start:dev
 
 # Projeto Executando
 Ao iniciar o projeto três Schedules estarão em execução.
--	Um para para salvar os Deals como Orders no Bling.
--	Um para salvar as Orders no MongoDB Atlas.
--	Um para para buscar os dados salvos no MongoDB Atlas (Reports).
+	- Um para para salvar os Deals como Orders no Bling.
+	- Um para salvar as Orders no MongoDB Atlas.
+	- Um para para buscar os dados salvos no MongoDB Atlas (Reports).
 
 # Documentação
 Com o projeto em execução acesse http://localhost:3000/api para conhecer as rotas que o projeto possui.
