@@ -63,6 +63,9 @@ Ao iniciar o projeto três Schedules estarão em execução.
 	- Um para salvar as Orders no MongoDB Atlas.
 	- Um para para buscar os dados salvos no MongoDB Atlas (Reports).
 
+# Docker
+docker-compose up dev
+
 # Documentação
 Com o projeto em execução acesse http://localhost:3000/api para conhecer as rotas que o projeto possui.
 ```

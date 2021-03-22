@@ -52,8 +52,9 @@ export class ScheduleService {
 
 		time.add(seconds, 's');
 
-		return `${time.second()} ${time.minute()} ${time.hour()} ${time.date()} ${time.month() + 1
-			} * ${time.year()}`;
+		return `${time.second()} ${time.minute()} ${time.hour()} ${time.date()} ${
+			time.month() + 1
+		} * ${time.year()}`;
 	}
 
 	public getScheduleIds(): Observable<string[]> {
