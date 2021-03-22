@@ -76,3 +76,4 @@ Com o projeto em execução acesse http://localhost:3000/api para conhecer as ro
 -   [NestJs](https://docs.nestjs.com/)
 -   [MongoDB](https://docs.mongodb.com/)
 -   [Swagger](https://swagger.io/docs/)
+-   [Docker](https://www.docker.com/)
