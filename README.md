@@ -48,7 +48,8 @@ disso, os dados diários dos pedidos salvos no
 ## Instruções
 
 ```bash
-É necessário criar uma pasta environments com dois arquivos: develop.env e production.env e adicionar as variáveis de ambiente necessárias.
+É necessário criar uma pasta environments com dois arquivos: develop.env e production.env e adicionar as
+variáveis de ambiente necessárias.
 As variáveis de ambientes utilizadas estão no módulo config.
 
 # Repositório
